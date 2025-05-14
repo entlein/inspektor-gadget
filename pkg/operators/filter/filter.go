@@ -71,15 +71,18 @@ func (f *filterOperator) InstanceParams() api.Params {
     field<=value     - matches, if the content of field is less than or equal to the value
     field<value      - matches, if the content of field is less than the value
     field~value      - matches, if the content of field matches the regular expression 'value'
+    field!~value     - matches, if the content of field does not match the regular expression 'value'
                  see [https://github.com/google/re2/wiki/Syntax] for more information on the syntax
   Multiple filters can be combined using a comma: field1==value1,field2==value2
+  It is recommended to use single quotes to escape the filter string, especially if using regular expressions.
+  Example: --filter 'field!~regex'
         `,
 		Alias: "F",
 	}}
 }
 
 func (f *filterOperator) InstantiateDataOperator(gadgetCtx operators.GadgetContext, instanceParamValues api.ParamValues) (operators.DataOperatorInstance, error) {
-	filterCfg, _ := instanceParamValues[ParamFilter]
+	filterCfg := instanceParamValues[ParamFilter]
 
 	fop := &filterOperatorInstance{
 		ffns: map[datasource.DataSource][]func(datasource.DataSource, datasource.Data) bool{},
@@ -171,10 +174,7 @@ func extractFilter(filter string) (dsName string, fieldName string, op compariso
 	stage := 0
 	pos := 0
 nextChar:
-	for {
-		if pos >= len(filter) {
-			break
-		}
+	for pos < len(filter) {
 		switch stage {
 		case 0:
 			switch filter[pos] {

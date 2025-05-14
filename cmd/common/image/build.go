@@ -210,6 +210,42 @@ func runBuild(cmd *cobra.Command, opts *cmdOpts) error {
 		conf.EBPFSource = ""
 	}
 
+	var hasEBPFSource, hasMetadata, hasWasm, hasGo bool
+	if conf.EBPFSource != "" {
+		if _, err := os.Stat(conf.EBPFSource); err == nil {
+			hasEBPFSource = true
+		}
+	}
+	if conf.Metadata != "" {
+		if _, err := os.Stat(conf.Metadata); err == nil {
+			hasMetadata = true
+		}
+	}
+	if conf.Wasm != "" {
+		if _, err := os.Stat(conf.Wasm); err == nil {
+			hasWasm = true
+		}
+	}
+
+	goFolder := "./go"
+
+	if _, err := os.Stat(goFolder); err == nil {
+		_ = filepath.Walk(goFolder, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if !info.IsDir() && strings.HasSuffix(info.Name(), ".go") {
+				hasGo = true
+				return filepath.SkipDir
+			}
+			return nil
+		})
+	}
+
+	if !hasEBPFSource && !hasMetadata && !hasWasm && !hasGo {
+		return fmt.Errorf("ateast one of ebpf source (program.bpf.c), metadata (gadget.yaml), .go files (present in go folder) or wasm module is required")
+	}
+
 	// copy helper files
 	files, err := helpersFS.ReadDir("helpers")
 	if err != nil {
@@ -474,17 +510,20 @@ func buildInContainer(opts *cmdOpts, conf *buildFile) error {
 	case status = <-statusCh:
 	}
 
-	if status.StatusCode != 0 || common.Verbose {
-		opts := container.LogsOptions{ShowStdout: true, ShowStderr: true}
-		out, err := cli.ContainerLogs(ctx, resp.ID, opts)
-		if err != nil {
-			return fmt.Errorf("getting builder container logs: %w", err)
-		}
+	outputOpts := container.LogsOptions{ShowStderr: true}
 
-		fmt.Println("Build logs start:")
-		stdcopy.StdCopy(os.Stdout, os.Stderr, out)
-		fmt.Println("Build logs end")
+	if status.StatusCode != 0 || common.Verbose {
+		outputOpts.ShowStdout = true
 	}
+
+	out, err := cli.ContainerLogs(ctx, resp.ID, outputOpts)
+	if err != nil {
+		return fmt.Errorf("getting builder container logs: %w", err)
+	}
+
+	fmt.Println("Build logs start:")
+	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
+	fmt.Println("Build logs end")
 
 	if status.StatusCode != 0 {
 		return fmt.Errorf("builder container exited with status %d", status.StatusCode)

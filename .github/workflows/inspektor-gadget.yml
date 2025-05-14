@@ -44,7 +44,7 @@ jobs:
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Setup go
-      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
       with:
         go-version: ${{ env.GO_VERSION_DOC_CHECK }}
         cache: true
@@ -102,20 +102,16 @@ jobs:
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Setup go
-      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
       with:
         go-version: ${{ env.GO_VERSION }}
       id: go
     - name: Lint
-      uses: golangci/golangci-lint-action@55c2c1448f86e01eaae002a5a3a9624417608d84 # v6.5.2
+      uses: golangci/golangci-lint-action@4afd733a84b1f43292c63897423277bb7f4313a9 # v8.0.0
       with:
         # This version number must be kept in sync with Makefile lint one.
-        version: v1.64.8
+        version: v2.1.6
         working-directory: /home/runner/work/inspektor-gadget/inspektor-gadget
-        # Workaround to display the output:
-        # https://github.com/golangci/golangci-lint-action/issues/119#issuecomment-981090648
-        args: "--out-${NO_FUTURE}format colored-line-number"
-        skip-pkg-cache: true
 
   semgrep:
     name: semgrep
@@ -184,7 +180,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Check if added dependencies do not contain CVE.
-        uses: actions/dependency-review-action@ce3cf9537a52e8119d91fd484ab5b8a807627bf8 # v4.6.0
+        uses: actions/dependency-review-action@38ecb5b593bf0eb19e335c03f97670f792489a8b # v4.7.0
 
   build-clients:
     name: clients
@@ -204,7 +200,7 @@ jobs:
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Setup go
-      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
       with:
         go-version: ${{ env.GO_VERSION }}
         cache: true
@@ -307,7 +303,7 @@ jobs:
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Setup go
-      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
       with:
         go-version: ${{ env.GO_VERSION }}
         cache: true
@@ -365,7 +361,7 @@ jobs:
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Setup go
-      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
       with:
         go-version: ${{ env.GO_VERSION }}
         cache: true
@@ -396,7 +392,7 @@ jobs:
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Setup go
-      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
       with:
         go-version: ${{ env.GO_VERSION }}
         cache: true
@@ -720,7 +716,7 @@ jobs:
         platform: [amd64, arm64]
     steps:
       - name: Set up Go
-        uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
@@ -759,7 +755,7 @@ jobs:
       - build-and-push-gadgets
     steps:
       - name: Set up Go
-        uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
@@ -988,42 +984,30 @@ jobs:
             context: "tools/dnstester"
             dockerfile: "tools/dnstester/Dockerfile"
             platform: "linux/amd64,linux/arm64"
-            filter-patterns:
-              - "tools/dnstester/*"
+            key-files: "tools/dnstester/*"
           - name: "gadget-builder"
             context: "/home/runner/work/inspektor-gadget/inspektor-gadget"
             dockerfile: "Dockerfiles/gadget-builder.Dockerfile"
             platform: "linux/amd64,linux/arm64"
-            filter-patterns:
-              - "include/**"
-              - "Dockerfiles/gadget-builder.Dockerfile"
-              - "cmd/common/image/Makefile.build"
+            key-files: "'include/**','Dockerfiles/gadget-builder.Dockerfile','cmd/common/image/Makefile.build'"
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-    - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
-      id: filter
-      with:
-        # https://github.com/rhysd/actionlint/blob/main/docs/checks.md#check-type-check-expression
-        filters: |
-          pattern: ${{ toJson(matrix.image.filter-patterns) }}
-    - name: Check if we should build helpers
-      id: check-build-helpers
-      # always build the images on release, merge to main or to a release branch
-      if: steps.filter.outputs.pattern == 'true' || startsWith(github.ref_name, 'v') || startsWith(github.ref_name, 'release-') || github.ref_name == 'main'
-      run: |
-          echo "build=true" >> $GITHUB_OUTPUT
     - name: Set up Docker Buildx
-      if: steps.check-build-helpers.outputs.build == 'true'
       uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
+    - name: Cache Docker layers
+      uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-docker-${{ matrix.image.name }}-${{ hashFiles(matrix.image.key-files) }}
+        restore-keys: |
+          ${{ runner.os }}-docker-${{ matrix.image.name}}-
     - name: Login to Container Registry
-      if: steps.check-build-helpers.outputs.build == 'true'
       uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
       with:
         registry: ${{ env.REGISTRY }}
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Set container repository and determine image tag
-      if: steps.check-build-helpers.outputs.build == 'true'
       id: set-repo-determine-image-tag
       uses: ./.github/actions/set-container-repo-and-determine-image-tag
       with:
@@ -1031,7 +1015,6 @@ jobs:
         container-image: ${{ github.repository_owner }}/${{ matrix.image.name }}
     - name: Build ${{ matrix.image.name }} image
       id: build-image
-      if: steps.check-build-helpers.outputs.build == 'true'
       uses: docker/build-push-action@14487ce63c7a62a4a324b0bfb37086795e31c6c1 # v6.16.0
       with:
         context: ${{ matrix.image.context }}
@@ -1041,6 +1024,8 @@ jobs:
         # https://docs.github.com/en/actions/learn-github-actions/variables#creating-configuration-variables-for-a-repository
         push: ${{ vars.PUSH_HELPERS == 'ENABLE_PUSH_HELPERS' }}
         tags: ${{ steps.set-repo-determine-image-tag.outputs.container-repo }}:${{ steps.set-repo-determine-image-tag.outputs.image-tag }}
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache-new
         platforms: ${{ matrix.image.platform }}
     - name: Save ${{ matrix.image.name }} image tag output
       id: image-tag
@@ -1063,12 +1048,19 @@ jobs:
 
         echo "${{ matrix.image.name }}=${image}" >> $GITHUB_OUTPUT
     - name: Sign ${{ matrix.image.name }} image
-      if: steps.check-build-helpers.outputs.build == 'true' && needs.check-secrets.outputs.cosign == 'true' && vars.PUSH_HELPERS == 'ENABLE_PUSH_HELPERS'
+      if:  needs.check-secrets.outputs.cosign == 'true' && vars.PUSH_HELPERS == 'ENABLE_PUSH_HELPERS'
       uses: ./.github/actions/sign-container-image
       with:
         password: '${{ secrets.COSIGN_PASSWORD }}'
         private_key: '${{ secrets.COSIGN_PRIVATE_KEY }}'
         image: "${{ steps.set-repo-determine-image-tag.outputs.container-repo }}@${{ steps.build-image.outputs.digest }}"
+    # old cache entries aren’t deleted, so the cache size keeps growing
+    # remove old cache and move new cache to cache path to workaround the issue
+    # https://github.com/docker/build-push-action/issues/252
+    - name: Move ig container image cache to correct location
+      run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   build-examples:
     name: example
@@ -1115,7 +1107,7 @@ jobs:
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Setup go
-      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
       with:
         go-version: ${{ env.GO_VERSION }}
         cache: true
@@ -1141,7 +1133,7 @@ jobs:
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Setup go
-      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
       with:
         go-version: ${{ env.GO_VERSION }}
         cache: true
@@ -1169,7 +1161,7 @@ jobs:
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Setup go
-      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
       with:
         go-version: ${{ env.GO_VERSION }}
         cache: true
@@ -1311,7 +1303,7 @@ jobs:
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Setup go
-      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
       with:
         go-version: ${{ env.GO_VERSION }}
         cache: true
@@ -1353,7 +1345,7 @@ jobs:
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Setup go
-      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
       with:
         go-version: ${{ env.GO_VERSION }}
         cache: true
@@ -1463,7 +1455,7 @@ jobs:
   test-integration-k8s-ig:
     name: Test ig w/ k8s
     # level: 3
-    needs: [ test-unit, test-ig, build-ig, build-helper-images ]
+    needs: [ test-ig, build-ig, build-helper-images ]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -1478,7 +1470,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           container-image: ${{ env.CONTAINER_REPO }}
       - name: Setup go
-        uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
@@ -1599,7 +1591,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           container-image: ${{ env.CONTAINER_REPO }}
       - name: Setup go
-        uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
@@ -1647,7 +1639,7 @@ jobs:
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Setup go
-      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
       with:
         go-version: ${{ env.GO_VERSION }}
         cache: true
@@ -1739,7 +1731,7 @@ jobs:
         tar zxvf /home/runner/work/inspektor-gadget/gadgetctl-linux-amd64.tar.gz
         sudo mv gadgetctl /usr/bin/gadgetctl
     - name: Setup go
-      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
       with:
         go-version: ${{ env.GO_VERSION }}
         cache: true
@@ -1771,7 +1763,6 @@ jobs:
     name: Test ig w/o k8s
     # level: 3
     needs:
-      - test-unit
       - test-ig
       - build-ig
       - build-helper-images
@@ -1784,7 +1775,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Setup go
-        uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
@@ -1820,7 +1811,6 @@ jobs:
     # level: 4
     needs:
       - check-secrets
-      - test-unit
       - build-clients
       - build-gadget-container-images
       - publish-gadget-images-manifest
@@ -1843,7 +1833,7 @@ jobs:
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Setup go
-      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
       with:
         go-version: ${{ env.GO_VERSION }}
         cache: true
@@ -1918,7 +1908,6 @@ jobs:
     # level: 4
     needs:
       - check-secrets
-      - test-unit
       - build-clients
       - build-gadget-container-images
       - publish-gadget-images-manifest
@@ -1932,7 +1921,7 @@ jobs:
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Setup go
-      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
       with:
         go-version: ${{ env.GO_VERSION }}
         cache: true
@@ -1968,7 +1957,6 @@ jobs:
     name: Integration tests on EKS
     # level: 4
     needs:
-      - test-unit
       - build-clients
       - build-gadget-container-images
       - publish-gadget-images-manifest
@@ -1989,7 +1977,7 @@ jobs:
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Setup go
-      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
       with:
         go-version: ${{ env.GO_VERSION }}
         cache: true
@@ -2049,7 +2037,6 @@ jobs:
     if: needs.check-secrets.outputs.gke == 'true'
     needs:
       - check-secrets
-      - test-unit
       - build-clients
       - build-gadget-container-images
       - publish-gadget-images-manifest
@@ -2074,7 +2061,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Setup go
-        uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
@@ -2146,7 +2133,6 @@ jobs:
     name: Integr. tests
     # level: 3
     needs:
-      - test-unit
       - build-clients
       - build-gadget-container-images
       - build-helper-images
@@ -2160,7 +2146,7 @@ jobs:
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Setup go
-      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
       with:
         go-version: ${{ env.GO_VERSION }}
         cache: true
@@ -2284,7 +2270,7 @@ jobs:
     - name: Get all artifacts.
       uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
     - name: Setup go
-      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+      uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
       with:
         go-version: ${{ env.GO_VERSION }}
         cache: true
